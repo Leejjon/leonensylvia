@@ -6,21 +6,13 @@ body {
   text-align: center;
   margin: auto;
 
-  min-height: 100vh;
   min-width: 36em;
   max-width: 36em;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: 60vmin;
 }
