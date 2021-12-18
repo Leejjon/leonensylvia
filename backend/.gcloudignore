@@ -1,0 +1,8 @@
+.gcloudignore
+
+node_modules/
+
+src/
+tsconfig.json
+webpack.config.ts
+webpackdev.config.ts
