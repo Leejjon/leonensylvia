@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {Guest, getInvitationByCode} from "./sheetservice";
+import {getInvitationByCode} from "./sheetservice";
 
 enum ErrorScenarios {
     INTERNAL_ERROR,

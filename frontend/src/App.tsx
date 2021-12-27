@@ -1,70 +1,48 @@
 import React, {useState} from 'react';
-import beachpicture from './images/loveshoot-001.jpg';
 import './App.css';
-import {Box, Tab, Tabs, Typography} from "@mui/material";
+import {makeStyles} from '@mui/styles';
+import {Button, Card, CardActions, CardContent, Grid, TextField, Typography} from "@mui/material";
 
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
-    value: number;
-}
+const useStyles = makeStyles({
+    root: {
+        flexGrow: 1,
+        textAlign: 'center',
+    },
+    card: {
+        backgroundColor: "#fcf7f3",
+        marginTop: "1em",
+        marginLeft: "auto",
+        marginRight: "auto",
+        minWidth: "20em",
+        maxWidth: "20em"
+    },
+    textfield: {
+        flexGrow: 1,
+        maxWidth: '11em',
+    },
+});
 
-function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
+const App: React.FC = () => {
+    const classes = useStyles();
 
     return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            {...other}
-        >
-            {value === index && (
-                <Box sx={{ p: 3 }}>
-                    <Typography>{children}</Typography>
-                </Box>
-            )}
+        <div className={classes.root}>
+            <br/>
+            <Typography variant="h1" sx={{fontFamily: "times new roman"}} fontSize="xxx-large">Leon & Sylvia</Typography>
+            <Card className={classes.card}>
+                <CardContent>
+                    <Typography variant="body2" fontSize="medium">
+                        Op deze website kun jij je aanmelden voor onze bruiloft.
+                    </Typography>
+                    <br />
+                    <div>
+                        <TextField className={classes.textfield} id="outlined-basic" label="Vul hier je code in..." variant="outlined" />
+                        &nbsp;
+                        <Button sx={{height: "4em"}} variant="contained">Ok</Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
-    );
-}
-
-function a11yProps(index: number) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
-}
-
-function App() {
-    const [value, setValue] = React.useState(0);
-
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-    };
-
-    return (
-        <>
-            <img src={beachpicture} className="App-logo" alt="logo"/>
-            <Box className="App" sx={{ width: '100%' }}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                        <Tab label="Item One" {...a11yProps(0)} />
-                        <Tab label="Item Two" {...a11yProps(1)} />
-                        <Tab label="Item Three" {...a11yProps(2)} />
-                    </Tabs>
-                </Box>
-                <TabPanel value={value} index={0}>
-                    Item One
-                </TabPanel>
-                <TabPanel value={value} index={1}>
-                    Item Two
-                </TabPanel>
-                <TabPanel value={value} index={2}>
-                    Item Three
-                </TabPanel>
-            </Box>
-        </>
     );
 }
 
