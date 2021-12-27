@@ -1,14 +1,17 @@
 import express = require('express');
+import {getInvitation} from "./invitation";
 
 const path = require('path');
 
-const PORT = Number(process.env.PORT) || 8080;
+const port = Number(process.env.PORT) || 8080;
 const app = express();
+
+app.get("/api/invitation", getInvitation);
 
 app.use(express.static(path.join(__dirname, "build")));
 
-const server = app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
+const server = app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
 });
 
 /**

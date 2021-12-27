@@ -1,5 +1,5 @@
 .idea/
-
+secrets/
 frontend/build
 frontend/node_modules
 backend/dist
