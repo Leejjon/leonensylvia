@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
 import Login from "./components/Login";
+import {Button} from "@mui/material";
+import Attendance from "./components/Attendance";
 
 const App: React.FC = () => {
     const [loggedIn, setLoggedIn] = useState(false);
@@ -19,7 +21,7 @@ const App: React.FC = () => {
 
     if (loggedIn) {
         return (
-            <div>Hello</div>
+            <Attendance/>
         );
     } else {
         return (
