@@ -10,9 +10,9 @@ enum ErrorScenarios {
 export const getInvitation = async (req: Request, res: Response) => {
     const invitation = req.headers["invitation"];
 
+        console.log(invitation);
     if (invitation) {
         const sheetdata = await getInvitationByCode(invitation as string);
-
         res.contentType('application/json');
         res.status(200);
         res.send(sheetdata);

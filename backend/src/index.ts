@@ -5,8 +5,16 @@ const path = require('path');
 
 const port = Number(process.env.PORT) || 8080;
 const app = express();
+const environment = process.env.NODE_ENV || 'development';
 
-app.get("/api/invitation", getInvitation);
+if (environment === 'development') {
+    const cors = require('cors');
+    app.options("/api/invitation", cors(), getInvitation);
+    app.get("/api/invitation", cors(), getInvitation);
+} else {
+    app.options("/api/invitation", getInvitation);
+    app.get("/api/invitation", getInvitation);
+}
 
 app.use(express.static(path.join(__dirname, "build")));
 

@@ -41,10 +41,12 @@ export const getInvitationByCode = async (invitationCode: string): Promise<Array
         .values?.filter((rows) => {
             return rows[0] === invitationCode;
         })
-        .map((guest) => <Guest>{
+        .map((guest) => {
+            console.log(guest);
+            return <Guest>{
             name: guest[1],
             fromCeremony: guest[3],
             fromDrinks: guest[4],
             allowedToSleepOver: guest[5]
-        }) as Array<Guest>;
+        }}) as Array<Guest>;
 }
