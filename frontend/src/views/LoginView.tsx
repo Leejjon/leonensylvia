@@ -3,6 +3,8 @@ import {Button, Card, CardContent, TextField, Typography} from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, {ChangeEvent, useRef, useState} from "react";
 import {getHost} from "../service/Network";
+import attendanceState from "../state/AttendanceState";
+import {useTranslation} from "react-i18next";
 
 const useStyles = makeStyles({
     root: {
@@ -26,10 +28,11 @@ export interface LoginProps {
     storeInvitationCode: (code: string) => void
 }
 
-const Login: React.FC<LoginProps> = ({storeInvitationCode}) => {
+const LoginView: React.FC<LoginProps> = ({storeInvitationCode}) => {
     const classes = useStyles();
+    const {t} = useTranslation();
     const textFieldValueReference = useRef<HTMLInputElement>();
-    const [invalidMessage, setInvalidMessage] = useState<string | undefined>(undefined);
+        const [invalidMessage, setInvalidMessage] = useState<string | undefined>(undefined);
 
     const onTextFieldChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (!event.target.value) {
@@ -48,6 +51,7 @@ const Login: React.FC<LoginProps> = ({storeInvitationCode}) => {
                     let invitationData = await response.json();
                     if (invitationData.length > 0) {
                         console.log(JSON.stringify(invitationData));
+                        attendanceState.setGuests(invitationData);
                         storeInvitationCode(code);
                         setInvalidMessage(undefined);
                         return;
@@ -65,15 +69,15 @@ const Login: React.FC<LoginProps> = ({storeInvitationCode}) => {
     return (
         <div className={classes.root}>
             <br/>
-            <Typography variant="h1" sx={{fontFamily: "times new roman"}} fontSize="xxx-large">Leon &
-                Sylvia</Typography>
+            <Typography variant="h1" sx={{fontFamily: "times new roman"}} fontSize="xxx-large">
+                {t("TITLE")}
+            </Typography>
             <Card className={classes.card}>
                 <CardContent>
-                    <Typography variant="body2" fontSize="medium">Je kunt je hier aanmelden voor onze
-                        bruiloft.</Typography>
+                    <Typography variant="body2" fontSize="medium">{t("REGISTER_HERE")}</Typography>
                     <br/>
                     <div>
-                        <TextField className={classes.textfield} id="outlined-basic" label="Vul hier je code in..."
+                        <TextField className={classes.textfield} id="outlined-basic" label={t("ENTER_YOUR_CODE")}
                                    variant="outlined" inputRef={textFieldValueReference}
                                    helperText={invalidMessage !== undefined ? invalidMessage : undefined}
                                    onChange={(event) => {
@@ -88,4 +92,4 @@ const Login: React.FC<LoginProps> = ({storeInvitationCode}) => {
     );
 };
 
-export default Login;
+export default LoginView;

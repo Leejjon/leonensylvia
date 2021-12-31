@@ -5,9 +5,15 @@ const environment = process.env.NODE_ENV || "development";
 
 export interface Guest {
     name: string,
+    email: string,
     fromCeremony: boolean,
     fromDrinks: boolean,
-    allowedToSleepOver: boolean
+    allowedToSleepOver: boolean,
+    attending: boolean
+    sleepingOver: boolean,
+    diet: string,
+    remarks: string
+    formCompleted: boolean
 }
 
 export const getInvitationByCode = async (invitationCode: string): Promise<Array<Guest>> => {
@@ -33,7 +39,7 @@ export const getInvitationByCode = async (invitationCode: string): Promise<Array
     });
     const result = await sheets.spreadsheets.values.get({
         spreadsheetId: '1s3uMlBTY5cY4bbUpnTxRVsmdXFB1F2TZWpWHyGZ2xHE',
-        range: 'Sheet1!A2:F'
+        range: 'Sheet1!A2:K'
     });
 
     return result
@@ -42,11 +48,13 @@ export const getInvitationByCode = async (invitationCode: string): Promise<Array
             return rows[0] === invitationCode;
         })
         .map((guest) => {
-            console.log(guest);
             return <Guest>{
-            name: guest[1],
-            fromCeremony: guest[3],
-            fromDrinks: guest[4],
-            allowedToSleepOver: guest[5]
+                name: guest[1],
+                email: guest[2],
+                fromCeremony: guest[3],
+                fromDrinks: guest[4],
+                allowedToSleepOver: guest[5],
+                attending: guest[6],
+                sleepingOver: guest[7],
         }}) as Array<Guest>;
 }

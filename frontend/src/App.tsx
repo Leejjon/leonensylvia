@@ -1,31 +1,31 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import Login from "./components/Login";
-import {Button} from "@mui/material";
-import Attendance from "./components/Attendance";
+import LoginView from "./views/LoginView";
+
+import AttendanceView from "./views/AttendanceView";
 
 const App: React.FC = () => {
-    const [loggedIn, setLoggedIn] = useState(false);
+    const [code, setCode] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        let code = localStorage.getItem("invitation");
-        if (code) {
-            setLoggedIn(true);
+        let codeFromLocalStorage = localStorage.getItem("invitation");
+        if (codeFromLocalStorage) {
+            setCode(codeFromLocalStorage);
         }
     }, []);
 
-    const setCodeInLocalStorage = (code: string) => {
-        localStorage.setItem("invitation", code);
-        setLoggedIn(true);
+    const setCodeInLocalStorage = (verifiedCodeFromApi: string) => {
+        localStorage.setItem("invitation", verifiedCodeFromApi);
+        setCode(verifiedCodeFromApi);
     }
 
-    if (loggedIn) {
+    if (code) {
         return (
-            <Attendance/>
+            <AttendanceView code={code}/>
         );
     } else {
         return (
-            <Login storeInvitationCode={setCodeInLocalStorage}/>
+            <LoginView storeInvitationCode={setCodeInLocalStorage}/>
         );
     }
 }
