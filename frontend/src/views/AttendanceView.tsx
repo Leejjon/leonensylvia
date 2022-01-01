@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import {
     Button,
     Card,
@@ -14,7 +14,7 @@ import attendanceState from "../state/AttendanceState";
 import {getHost} from "../service/Network";
 import AttendanceOfGuest from "../components/AttendanceOfGuest";
 import {useTranslation} from "react-i18next";
-import SleepOverQuestion from "../components/SleepOverQuestion";
+import SleepOverOfGuest from "../components/SleepOverOfGuest";
 
 const useStyles = makeStyles({
     root: {
@@ -39,8 +39,8 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
     const classes = useStyles();
     const {t} = useTranslation();
     const [loading, setLoading] = useState(true);
-    const [invalidMessage, setInvalidMessage] = useState<string | undefined>(undefined);
-
+    const [invalidCodeMessage, setInvalidCodeMessage] = useState<string | undefined>(undefined);
+    const [emailInvalidMessage, setEmailInalidMessage] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (attendanceState.guests.length > 0) {
@@ -52,19 +52,53 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                 if (response.status === 200) {
                     return response.json();
                 } else {
-                    setInvalidMessage("Did not receive valid ");
+                    setInvalidCodeMessage("Did not receive valid ");
                 }
             }).then((json) => {
-                attendanceState.setGuests(json);
-                setInvalidMessage(undefined);
+                if (json.length > 0) {
+                    attendanceState.setGuests(json);
+                    setInvalidCodeMessage(undefined);
+                } else {
+                    setInvalidCodeMessage("Invalid code");
+                }
                 setLoading(false);
             }).catch((error) => {
                 console.log(error);
                 attendanceState.setGuests([]);
-                setInvalidMessage("Couldn't verify if the code was valid.");
+                setInvalidCodeMessage("Couldn't verify if the code was valid.");
             });
         }
     }, []);
+
+    const validateEmail = (event: ChangeEvent<HTMLTextAreaElement|HTMLInputElement>) => {
+        const email = event.target.value;
+        // Source: https://stackoverflow.com/questions/46370725/how-to-do-email-validation-using-regular-expression-in-typescript
+        const regexp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+        if (regexp.test(email)) {
+            for (let i in attendanceState.guests) {
+                attendanceState.guests[i].email = email;
+            }
+            setEmailInalidMessage(undefined);
+        } else if (email === "") {
+            setEmailInalidMessage(undefined);
+        } else {
+            setEmailInalidMessage("E-mail invalid");
+        }
+    };
+
+    const saveRemarks = (event: ChangeEvent<HTMLTextAreaElement|HTMLInputElement>) => {
+        const remarks = event.target.value;
+        if (remarks) {
+            for (let i in attendanceState.guests) {
+                attendanceState.guests[i].remarks = remarks;
+            }
+        }
+    }
+
+    const handleRegistration = async () => {
+        console.log('Register');
+        console.log(attendanceState.guests);
+    }
 
     if (loading) {
         return <div className={classes.root}><CircularProgress className={classes.progress}/></div>
@@ -74,18 +108,21 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                 <Grid container justifyContent="center" spacing={2} className={classes.root}>
                     <Grid item xs={12} sx={{marginTop: "0.5em", marginBottom: "0em"}}>
                         <Typography variant="h1" sx={{fontFamily: "times new roman"}} fontSize="xxx-large">Leon &
-                        Sylvia</Typography>
+                            Sylvia</Typography>
                     </Grid>
                     <Grid item>
                         <Card className={classes.card}>
                             <CardContent>
-                                <Typography variant="body2" fontSize="medium" fontWeight="bold">{t("WEDDING_INFO_TITLE")}</Typography>
-                                <Divider/><br />
+                                <Typography variant="body2" fontSize="medium"
+                                            fontWeight="bold">{t("WEDDING_INFO_TITLE")}</Typography>
+                                <Divider/><br/>
                                 <Typography variant="body2" fontSize="medium">{t("WELCOME_MESSAGE")}</Typography>
-                                <br />
+                                <br/>
                                 <Typography variant="body2" fontSize="medium">{t("WE_HOPE_YOU_CAN_EVENT")}</Typography>
-                                <br />
-                                <Typography variant="body2" fontSize="medium">{t("CEREMONY_DESCRIPTION")}</Typography>
+                                <br/>
+                                {attendanceState.guests[0].fromCeremony &&
+                                    <Typography variant="body2" fontSize="medium">{t("CEREMONY_DESCRIPTION")}</Typography>
+                                }
                                 <Typography variant="body2" fontSize="medium">{t("DRINKS_DESCRIPTION")}</Typography>
                                 <Typography variant="body2" fontSize="medium">{t("DINNER_DESCRIPTION")}</Typography>
                                 <Typography variant="body2" fontSize="medium">{t("PARTY_DESCRIPTION")}</Typography>
@@ -95,30 +132,45 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                     <Grid item>
                         <Card className={classes.card}>
                             <CardContent>
-                                <Typography variant="body2" fontSize="medium" fontWeight="bold">{t("YOUR_ATTENDANCE")}</Typography>
-                                <Divider/><br />
+                                <Typography variant="body2" fontSize="medium"
+                                            fontWeight="bold">{t("YOUR_ATTENDANCE")}</Typography>
+                                <Divider/><br/>
                                 <Typography variant="body2" fontSize="medium">{t("ATTEND_MESSAGE")}</Typography>
-                                <List>
-                                    {attendanceState.guests.map((guest) => {
-                                        return <ListItem sx={{paddingLeft: "0px", paddingTop: "0px", paddingBottom: "0px"}} key={`tableRow${guest.name}`}><AttendanceOfGuest guest={guest}/></ListItem>;
+                                <List sx={{marginBottom: "0.4em"}}>
+                                    {attendanceState.guests.map((guest, index) => {
+                                        return <ListItem
+                                            sx={{paddingLeft: "0px", paddingTop: "0px", paddingBottom: "0px"}}
+                                            key={`tableRow${guest.name}`}><AttendanceOfGuest guest={guest} index={index} /></ListItem>;
                                     })}
                                 </List>
                                 {attendanceState.guests[0].allowedToSleepOver &&
-                                    <SleepOverQuestion />
+                                    <>
+                                        <Typography variant="body2" fontSize="medium">{t("SLEEP_OVER")}</Typography>
+                                        <List sx={{marginBottom: "0.4em"}}>
+                                            {attendanceState.guests.map((guest, index) => {
+                                                return (
+                                                    <ListItem sx={{paddingLeft: "0px", paddingTop: "0px", paddingBottom: "0px"}} key={`tableRow${guest.name}`}>
+                                                        <SleepOverOfGuest guest={guest} index={index}/>
+                                                    </ListItem>
+                                                );
+                                            })}
+                                        </List>
+                                    </>
                                 }
-                                <br/>
                                 <Typography variant="body2" fontSize="medium">{t("EMAIL_DESCRIPTION")}</Typography>
                                 <TextField
+                                    error={emailInvalidMessage !== undefined}
+                                    helperText={emailInvalidMessage !== undefined ? emailInvalidMessage : undefined}
                                     id="outlined-static"
                                     multiline
                                     label={t("EMAIL_HERE")}
-                                    InputLabelProps={{shrink: false}}
                                     rows={1}
                                     defaultValue={""}
                                     hiddenLabel
+                                    onChange={validateEmail}
                                     sx={{marginTop: "0.8em", marginBottom: "1.5em"}}
                                 />
-                                <br />
+                                <br/>
                                 <Typography variant="body2" fontSize="medium">{t("DIET_DESCRIPTION")}</Typography>
                                 <TextField
                                     id="outlined-static"
@@ -128,26 +180,28 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                     defaultValue={""}
                                     sx={{marginTop: "0.8em", marginBottom: "0.8em"}}
                                 />
-                                <br />
-                                <br />
+                                <br/>
+                                <br/>
                                 <Typography variant="body2" fontSize="medium">{t("REMARKS")}</Typography>
                                 <TextField
                                     id="outlined-static"
                                     multiline
-                                    InputLabelProps={{shrink: false}}
                                     rows={1}
                                     defaultValue={""}
                                     label={"Remarks"}
                                     sx={{marginTop: "0.8em", marginBottom: "0.8em"}}
+                                    onChange={saveRemarks}
                                 />
-                                <Button sx={{textTransform: "none", marginTop: "0.5em", width: "50%", marginRight: "50%"}} variant="contained">{t("REGISTER_BUTTON")}</Button>
+                                <Button
+                                    sx={{textTransform: "none", marginTop: "0.5em", width: "50%", marginRight: "50%"}}
+                                    variant="contained" onClick={handleRegistration}>{t("REGISTER_BUTTON")}</Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
             );
         } else {
-            return <div className={classes.root}>{invalidMessage}</div>;
+            return <div className={classes.root}>{invalidCodeMessage}</div>;
         }
     }
 };

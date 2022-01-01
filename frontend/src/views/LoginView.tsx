@@ -32,7 +32,7 @@ const LoginView: React.FC<LoginProps> = ({storeInvitationCode}) => {
     const classes = useStyles();
     const {t} = useTranslation();
     const textFieldValueReference = useRef<HTMLInputElement>();
-        const [invalidMessage, setInvalidMessage] = useState<string | undefined>(undefined);
+    const [invalidMessage, setInvalidMessage] = useState<string | undefined>(undefined);
 
     const onTextFieldChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (!event.target.value) {

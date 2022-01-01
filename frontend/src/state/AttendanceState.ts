@@ -1,7 +1,7 @@
 
 export interface Guest {
     name: string,
-    email: string,
+    email?: string,
     fromCeremony: boolean,
     fromDrinks: boolean,
     allowedToSleepOver: boolean,

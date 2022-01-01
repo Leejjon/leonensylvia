@@ -1,25 +1,24 @@
 import attendanceState, {Guest} from "../state/AttendanceState";
+import React, {useState} from "react";
 import {Checkbox, ListItemButton, Typography} from "@mui/material";
-import React, {useEffect, useRef, useState} from "react";
 
-export interface AttendanceOfGuestProps {
-    guest: Guest
+
+export interface SleepOverOfGuestProps {
+    guest: Guest,
     index: number,
 }
 
-const AttendanceOfGuest: React.FC<AttendanceOfGuestProps> = ({guest, index}) => {
-    const [attending, setAttending] = useState(false);
+const SleepOverOfGuest: React.FC<SleepOverOfGuestProps> = ({guest, index}) => {
+    const [sleepOver, setSleepOver] = useState(false);
     const handleToggle = () => () => {
-        attendanceState.guests[index].attending = !attending;
-        setAttending(!attending);
+        attendanceState.guests[index].sleepingOver = !sleepOver;
+        setSleepOver(!sleepOver);
     };
-
-
     return (
         <ListItemButton sx={{paddingTop: "0px", paddingBottom: "0px"}} onClick={handleToggle()} dense>
             <Checkbox
                 edge="start"
-                checked={attending }
+                checked={sleepOver}
                 tabIndex={-1}
                 disableRipple
                 inputProps={{'aria-labelledby': 'hoi'}}
@@ -30,4 +29,4 @@ const AttendanceOfGuest: React.FC<AttendanceOfGuestProps> = ({guest, index}) => 
     );
 };
 
-export default AttendanceOfGuest;
+export default SleepOverOfGuest;

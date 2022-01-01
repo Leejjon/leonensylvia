@@ -38,23 +38,26 @@ export const getInvitationByCode = async (invitationCode: string): Promise<Array
         auth: authClient
     });
     const result = await sheets.spreadsheets.values.get({
-        spreadsheetId: '1s3uMlBTY5cY4bbUpnTxRVsmdXFB1F2TZWpWHyGZ2xHE',
-        range: 'Sheet1!A2:K'
+        spreadsheetId: '1JVVEncPIZlfgAQYKJdvaiZFP5IQoUxFqD7TIEEmkmF4',
+        range: 'Gasten!A2:N'
     });
 
     return result
         .data
         .values?.filter((rows) => {
-            return rows[0] === invitationCode;
+            return rows[0] === invitationCode.toLowerCase();
         })
         .map((guest) => {
             return <Guest>{
                 name: guest[1],
-                email: guest[2],
-                fromCeremony: guest[3],
-                fromDrinks: guest[4],
-                allowedToSleepOver: guest[5],
-                attending: guest[6],
-                sleepingOver: guest[7],
+                email: guest[8],
+                fromCeremony: guest[5],
+                fromDrinks: guest[6],
+                allowedToSleepOver: guest[7],
+                attending: guest[9],
+                sleepingOver: guest[10],
+                diet: guest[11],
+                remarks: guest[12],
+                formCompleted: guest[13]
         }}) as Array<Guest>;
 }
