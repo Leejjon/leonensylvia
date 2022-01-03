@@ -50,7 +50,6 @@ const LoginView: React.FC<LoginProps> = ({storeInvitationCode}) => {
                 if (response.status === 200) {
                     let invitationData = await response.json();
                     if (invitationData.length > 0) {
-                        console.log(JSON.stringify(invitationData));
                         attendanceState.setGuests(invitationData);
                         storeInvitationCode(code);
                         setInvalidMessage(undefined);

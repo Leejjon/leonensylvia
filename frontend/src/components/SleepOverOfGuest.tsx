@@ -9,7 +9,7 @@ export interface SleepOverOfGuestProps {
 }
 
 const SleepOverOfGuest: React.FC<SleepOverOfGuestProps> = ({guest, index}) => {
-    const [sleepOver, setSleepOver] = useState(false);
+    const [sleepOver, setSleepOver] = useState(attendanceState.guests[index].sleepingOver);
     const handleToggle = () => () => {
         attendanceState.guests[index].sleepingOver = !sleepOver;
         setSleepOver(!sleepOver);

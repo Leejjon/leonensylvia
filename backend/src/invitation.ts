@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
-import {getInvitationByCode} from "./sheetservice";
+import {getInvitationByCode, Guest, putAttendanceInSheet} from "./sheetservice";
+import { plainToInstance} from "class-transformer";
 
 enum ErrorScenarios {
     INTERNAL_ERROR,
@@ -15,6 +16,18 @@ export const getInvitation = async (req: Request, res: Response) => {
         res.contentType('application/json');
         res.status(200);
         res.send(sheetdata);
+    } else {
+        mapError(res, ErrorScenarios.INVALID_INVITATION);
+    }
+}
+
+export const putInvitation = async (req: Request, res: Response) => {
+    const invitation = req.headers["invitation"];
+    const guests = plainToInstance(Guest, req.body);
+    if (invitation) {
+        await putAttendanceInSheet(invitation as string, guests);
+        res.contentType('application/json');
+        res.sendStatus(200);
     } else {
         mapError(res, ErrorScenarios.INVALID_INVITATION);
     }

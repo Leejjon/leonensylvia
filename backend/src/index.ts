@@ -1,19 +1,22 @@
 import express = require('express');
-import {getInvitation} from "./invitation";
-
+import {getInvitation, putInvitation} from "./invitation";
 const path = require('path');
 
 const port = Number(process.env.PORT) || 8080;
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
 
+app.use(express.json());
+
 if (environment === 'development') {
     const cors = require('cors');
     app.options("/api/invitation", cors(), getInvitation);
     app.get("/api/invitation", cors(), getInvitation);
+    app.put("/api/invitation", cors(), putInvitation);
 } else {
     app.options("/api/invitation", getInvitation);
     app.get("/api/invitation", getInvitation);
+    app.put("/api/invitation", putInvitation);
 }
 
 app.use(express.static(path.join(__dirname, "build")));

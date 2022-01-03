@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useRef, useState} from "react";
 import {
     Button,
     Card,
@@ -6,15 +6,18 @@ import {
     CircularProgress, Divider, Grid,
     List,
     ListItem,
-    TextField,
+    TextField, TextFieldProps,
     Typography
 } from "@mui/material";
 import {makeStyles} from "@mui/styles";
-import attendanceState from "../state/AttendanceState";
+import attendanceState, {Guest} from "../state/AttendanceState";
 import {getHost} from "../service/Network";
 import AttendanceOfGuest from "../components/AttendanceOfGuest";
 import {useTranslation} from "react-i18next";
 import SleepOverOfGuest from "../components/SleepOverOfGuest";
+import AllergiesOfGuest from "../components/AllergiesOfGuest";
+import WeddingInfo from "../components/WeddingInfo";
+import WeddingHeader from "../components/WeddingHeader";
 
 const useStyles = makeStyles({
     root: {
@@ -39,10 +42,13 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
     const classes = useStyles();
     const {t} = useTranslation();
     const [loading, setLoading] = useState(true);
+    const [formCompleted, setFormCompleted] = useState(false);
     const [invalidCodeMessage, setInvalidCodeMessage] = useState<string | undefined>(undefined);
     const [emailInvalidMessage, setEmailInalidMessage] = useState<string | undefined>(undefined);
+    const [tempEmail, setTempEmail] = useState("");
+    const [tempRemarks, setTempRemarks] = useState("");
 
-    useEffect(() => {
+    const theUseEffectFunction = () => {
         if (attendanceState.guests.length > 0) {
             setLoading(false);
         } else {
@@ -57,6 +63,10 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
             }).then((json) => {
                 if (json.length > 0) {
                     attendanceState.setGuests(json);
+                    if (attendanceState.guests.length > 0) {
+                        setTempEmail(attendanceState.guests[0].email as string);
+                        setTempRemarks(attendanceState.guests[0].remarks as string);
+                    }
                     setInvalidCodeMessage(undefined);
                 } else {
                     setInvalidCodeMessage("Invalid code");
@@ -68,88 +78,125 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                 setInvalidCodeMessage("Couldn't verify if the code was valid.");
             });
         }
-    }, []);
+    }
 
-    const validateEmail = (event: ChangeEvent<HTMLTextAreaElement|HTMLInputElement>) => {
-        const email = event.target.value;
+    useEffect(theUseEffectFunction, []);
+
+    const validateEmail = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        const changedEmail = event.target.value;
+        setTempEmail(changedEmail);
         // Source: https://stackoverflow.com/questions/46370725/how-to-do-email-validation-using-regular-expression-in-typescript
         const regexp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-        if (regexp.test(email)) {
+        if (regexp.test(changedEmail)) {
             for (let i in attendanceState.guests) {
-                attendanceState.guests[i].email = email;
+                attendanceState.guests[i].email = changedEmail;
             }
             setEmailInalidMessage(undefined);
-        } else if (email === "") {
+        } else if (changedEmail === "") {
             setEmailInalidMessage(undefined);
         } else {
             setEmailInalidMessage("E-mail invalid");
         }
     };
 
-    const saveRemarks = (event: ChangeEvent<HTMLTextAreaElement|HTMLInputElement>) => {
+    const saveRemarks = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const remarks = event.target.value;
+        setTempRemarks(remarks);
         if (remarks) {
-            for (let i in attendanceState.guests) {
-                attendanceState.guests[i].remarks = remarks;
-            }
+            attendanceState.guests[0].remarks = remarks;
         }
     }
 
     const handleRegistration = async () => {
-        console.log('Register');
-        console.log(attendanceState.guests);
+        for (let i in attendanceState.guests) {
+            attendanceState.guests[i].formCompleted = true;
+        }
+
+        const response = await fetch(getHost() + "/api/invitation", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                invitation: localStorage.getItem('invitation') as string
+            },
+            body: JSON.stringify(attendanceState.guests)
+        });
+
+        if (response.status === 200) {
+            setFormCompleted(true);
+        }
+    }
+
+    const undoRegistration = async () => {
+        setFormCompleted(false)
+        theUseEffectFunction();
     }
 
     if (loading) {
         return <div className={classes.root}><CircularProgress className={classes.progress}/></div>
+    } else if (formCompleted) {
+        return (
+            <Grid container justifyContent="center" spacing={2} className={classes.root}>
+                <WeddingHeader/>
+                <WeddingInfo/>
+                <Grid item>
+                    <Card className={classes.card}>
+                        <CardContent>
+                            <Typography variant="body2" fontSize="medium"
+                                        fontWeight="bold">{t("YOUR_ATTENDANCE")}</Typography>
+                            <Divider/><br/>
+                            <Typography variant="body2" fontSize="medium">Je hebt je aangemeld!</Typography>
+                            <Button
+                                sx={{
+                                    textTransform: "none",
+                                    marginTop: "0.5em",
+                                    marginBottom: "1.5em",
+                                    width: "80%",
+                                    marginRight: "20%"
+                                }}
+                                variant="contained" onClick={undoRegistration}>Aanmelding opnieuw doen</Button>
+
+                            <Typography variant="body2" fontSize="medium"
+                                        fontWeight="bold">Covid</Typography>
+                            <Divider/><br/>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+        );
     } else {
         if (attendanceState.guests.length > 0) {
             return (
                 <Grid container justifyContent="center" spacing={2} className={classes.root}>
-                    <Grid item xs={12} sx={{marginTop: "0.5em", marginBottom: "0em"}}>
-                        <Typography variant="h1" sx={{fontFamily: "times new roman"}} fontSize="xxx-large">Leon &
-                            Sylvia</Typography>
-                    </Grid>
-                    <Grid item>
-                        <Card className={classes.card}>
-                            <CardContent>
-                                <Typography variant="body2" fontSize="medium"
-                                            fontWeight="bold">{t("WEDDING_INFO_TITLE")}</Typography>
-                                <Divider/><br/>
-                                <Typography variant="body2" fontSize="medium">{t("WELCOME_MESSAGE")}</Typography>
-                                <br/>
-                                <Typography variant="body2" fontSize="medium">{t("WE_HOPE_YOU_CAN_EVENT")}</Typography>
-                                <br/>
-                                {attendanceState.guests[0].fromCeremony &&
-                                    <Typography variant="body2" fontSize="medium">{t("CEREMONY_DESCRIPTION")}</Typography>
-                                }
-                                <Typography variant="body2" fontSize="medium">{t("DRINKS_DESCRIPTION")}</Typography>
-                                <Typography variant="body2" fontSize="medium">{t("DINNER_DESCRIPTION")}</Typography>
-                                <Typography variant="body2" fontSize="medium">{t("PARTY_DESCRIPTION")}</Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+                    <WeddingHeader/>
+                    <WeddingInfo/>
                     <Grid item>
                         <Card className={classes.card}>
                             <CardContent>
                                 <Typography variant="body2" fontSize="medium"
                                             fontWeight="bold">{t("YOUR_ATTENDANCE")}</Typography>
                                 <Divider/><br/>
-                                <Typography variant="body2" fontSize="medium">{t("ATTEND_MESSAGE")}</Typography>
+                                <Typography variant="body2"
+                                            fontSize="medium">{attendanceState.guests.length === 1 ? t("ATTEND_MESSAGE") : t("ATTEND_PLURAL_MESSAGE")}</Typography>
                                 <List sx={{marginBottom: "0.4em"}}>
-                                    {attendanceState.guests.map((guest, index) => {
+                                    {attendanceState.guests.length > 1 && attendanceState.guests.map((guest, index) => {
                                         return <ListItem
                                             sx={{paddingLeft: "0px", paddingTop: "0px", paddingBottom: "0px"}}
-                                            key={`tableRow${guest.name}`}><AttendanceOfGuest guest={guest} index={index} /></ListItem>;
+                                            key={`attendance${guest.name}`}><AttendanceOfGuest guest={guest}
+                                                                                               index={index}/></ListItem>;
                                     })}
                                 </List>
                                 {attendanceState.guests[0].allowedToSleepOver &&
                                     <>
-                                        <Typography variant="body2" fontSize="medium">{t("SLEEP_OVER")}</Typography>
+                                        <Typography variant="body2"
+                                                    fontSize="medium">{attendanceState.guests.length === 1 ? t("SLEEP_OVER") : t("SLEEP_OVER_PLURAL")}</Typography>
                                         <List sx={{marginBottom: "0.4em"}}>
                                             {attendanceState.guests.map((guest, index) => {
                                                 return (
-                                                    <ListItem sx={{paddingLeft: "0px", paddingTop: "0px", paddingBottom: "0px"}} key={`tableRow${guest.name}`}>
+                                                    <ListItem sx={{
+                                                        paddingLeft: "0px",
+                                                        paddingTop: "0px",
+                                                        paddingBottom: "0px"
+                                                    }} key={`sleepOver${guest.name}`}>
                                                         <SleepOverOfGuest guest={guest} index={index}/>
                                                     </ListItem>
                                                 );
@@ -165,21 +212,17 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                     multiline
                                     label={t("EMAIL_HERE")}
                                     rows={1}
-                                    defaultValue={""}
+                                    value={tempEmail}
                                     hiddenLabel
                                     onChange={validateEmail}
                                     sx={{marginTop: "0.8em", marginBottom: "1.5em"}}
                                 />
                                 <br/>
                                 <Typography variant="body2" fontSize="medium">{t("DIET_DESCRIPTION")}</Typography>
-                                <TextField
-                                    id="outlined-static"
-                                    multiline
-                                    label={"Allergies"}
-                                    rows={1}
-                                    defaultValue={""}
-                                    sx={{marginTop: "0.8em", marginBottom: "0.8em"}}
-                                />
+                                {attendanceState.guests.map((guest: Guest, index) => {
+                                    return <AllergiesOfGuest key={`allergiesOf${guest.name}`} guest={guest}
+                                                             index={index}/>
+                                })}
                                 <br/>
                                 <br/>
                                 <Typography variant="body2" fontSize="medium">{t("REMARKS")}</Typography>
@@ -187,7 +230,7 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                     id="outlined-static"
                                     multiline
                                     rows={1}
-                                    defaultValue={""}
+                                    value={tempRemarks}
                                     label={"Remarks"}
                                     sx={{marginTop: "0.8em", marginBottom: "0.8em"}}
                                     onChange={saveRemarks}

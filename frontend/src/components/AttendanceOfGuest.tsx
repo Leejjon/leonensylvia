@@ -8,12 +8,11 @@ export interface AttendanceOfGuestProps {
 }
 
 const AttendanceOfGuest: React.FC<AttendanceOfGuestProps> = ({guest, index}) => {
-    const [attending, setAttending] = useState(false);
+    const [attending, setAttending] = useState(guest.attending);
     const handleToggle = () => () => {
         attendanceState.guests[index].attending = !attending;
         setAttending(!attending);
     };
-
 
     return (
         <ListItemButton sx={{paddingTop: "0px", paddingBottom: "0px"}} onClick={handleToggle()} dense>
