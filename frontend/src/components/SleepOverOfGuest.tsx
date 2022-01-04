@@ -1,6 +1,7 @@
 import attendanceState, {Guest} from "../state/AttendanceState";
 import React, {useState} from "react";
 import {Checkbox, ListItemButton, Typography} from "@mui/material";
+import {makeStyles} from "@mui/styles";
 
 
 export interface SleepOverOfGuestProps {
@@ -8,7 +9,14 @@ export interface SleepOverOfGuestProps {
     index: number,
 }
 
+const useStyles = makeStyles({
+    checkboxLabel: {
+        fontFamily: "Roboto"
+    }
+});
+
 const SleepOverOfGuest: React.FC<SleepOverOfGuestProps> = ({guest, index}) => {
+    const classes = useStyles();
     const [sleepOver, setSleepOver] = useState(attendanceState.guests[index].sleepingOver);
     const handleToggle = () => () => {
         attendanceState.guests[index].sleepingOver = !sleepOver;
@@ -17,6 +25,7 @@ const SleepOverOfGuest: React.FC<SleepOverOfGuestProps> = ({guest, index}) => {
     return (
         <ListItemButton sx={{paddingTop: "0px", paddingBottom: "0px"}} onClick={handleToggle()} dense>
             <Checkbox
+                className={classes.checkboxLabel}
                 edge="start"
                 checked={sleepOver}
                 tabIndex={-1}

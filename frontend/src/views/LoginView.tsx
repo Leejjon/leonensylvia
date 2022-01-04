@@ -5,6 +5,7 @@ import React, {ChangeEvent, useRef, useState} from "react";
 import {getHost} from "../service/Network";
 import attendanceState from "../state/AttendanceState";
 import {useTranslation} from "react-i18next";
+import WeddingHeader from "../components/WeddingHeader";
 
 const useStyles = makeStyles({
     root: {
@@ -16,11 +17,16 @@ const useStyles = makeStyles({
         marginLeft: "auto",
         marginRight: "auto",
         minWidth: "20em",
-        maxWidth: "20em"
+        maxWidth: "20em",
+        minHeight: "15em",
+        backgroundImage: `url(${require('../images/loveshoot-lr-044-3.png')})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'bottom'
     },
     textfield: {
         flexGrow: 1,
         maxWidth: '11em',
+        fontFamily: "Times New Roman"
     },
 });
 
@@ -68,12 +74,10 @@ const LoginView: React.FC<LoginProps> = ({storeInvitationCode}) => {
     return (
         <div className={classes.root}>
             <br/>
-            <Typography variant="h1" sx={{fontFamily: "times new roman"}} fontSize="xxx-large">
-                {t("TITLE")}
-            </Typography>
+            <WeddingHeader/>
             <Card className={classes.card}>
                 <CardContent>
-                    <Typography variant="body2" fontSize="medium">{t("REGISTER_HERE")}</Typography>
+                    <Typography variant="body2" fontSize="medium" fontFamily="Times New Roman">{t("REGISTER_HERE")}</Typography>
                     <br/>
                     <div>
                         <TextField className={classes.textfield} id="outlined-basic" label={t("ENTER_YOUR_CODE")}
