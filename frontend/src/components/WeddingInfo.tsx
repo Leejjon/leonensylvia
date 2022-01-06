@@ -27,7 +27,7 @@ const WeddingInfo: React.FC = () => {
         <Grid item>
             <Card className={classes.card}>
                 <CardContent>
-                    <Typography variant="body2" fontSize="medium" color="#001E3C" fontFamily="Times New Roman"
+                    <Typography variant="body2" fontSize="large" color="#001E3C" fontFamily="Times New Roman"
                                 fontWeight="bold">{t("WEDDING_INFO_TITLE")}</Typography>
                     <Divider/><br/>
                     <Typography variant="body2" fontSize="medium" fontFamily="Times New Roman">{t("WELCOME_MESSAGE")}</Typography>
@@ -50,6 +50,7 @@ const WeddingInfo: React.FC = () => {
                             <Typography variant="body2" fontSize="medium" fontFamily="Times New Roman" fontWeight="bold">{t("BREAKFAST")}</Typography>
                         </>
                     }
+
                 </CardContent>
             </Card>
         </Grid>

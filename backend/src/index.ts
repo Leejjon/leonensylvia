@@ -1,5 +1,6 @@
 import express = require('express');
 import {getInvitation, putInvitation} from "./invitation";
+import {Request, Response} from "express";
 const path = require('path');
 
 const port = Number(process.env.PORT) || 8080;
@@ -20,6 +21,10 @@ if (environment === 'development') {
 }
 
 app.use(express.static(path.join(__dirname, "build")));
+
+app.use((req: Request, res: Response) => {
+    res.sendFile(path.resolve(__dirname, "build", "index.html"));
+});
 
 const server = app.listen(port, () => {
     console.log(`App listening on port ${port}`);

@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useRef, useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import {
     Button,
     Card,
@@ -6,7 +6,7 @@ import {
     CircularProgress, Divider, Grid,
     List,
     ListItem,
-    TextField, TextFieldProps,
+    TextField,
     Typography
 } from "@mui/material";
 import {makeStyles} from "@mui/styles";
@@ -18,13 +18,23 @@ import SleepOverOfGuest from "../components/SleepOverOfGuest";
 import AllergiesOfGuest from "../components/AllergiesOfGuest";
 import WeddingInfo from "../components/WeddingInfo";
 import WeddingHeader from "../components/WeddingHeader";
-import {BrowserRouter} from "react-router-dom";
-import {Route} from "@mui/icons-material";
+import WeddingMenu from "../components/WeddingMenu";
+import Registration from "../components/Registration";
+import Location from "../components/Location";
+import {BrowserRouter, Route} from "react-router-dom";
+import About from "../components/About";
+import Covid from "../components/Covid";
+import ExtendedWeddingInfo from "../components/ExtendedWeddingInfo";
+import Overnachten from "../components/Overnachten";
+import DressCode from "../components/DressCode";
+import Gifts from "../components/Gifts";
+import Pictures from "../components/Pictures";
 
 const useStyles = makeStyles({
     root: {
         flexGrow: 1,
         textAlign: 'center',
+        marginBottom: "1em"
     },
     card: {
         minWidth: "20em",
@@ -46,13 +56,15 @@ const useStyles = makeStyles({
 
 export interface AttendanceProps {
     code: string
+    formCompleted: boolean,
+    setFormCompleted: (formCompleted: boolean) => void
 }
 
-const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
+const AttendanceView: React.FC<AttendanceProps> = ({code, formCompleted, setFormCompleted}) => {
     const classes = useStyles();
     const {t} = useTranslation();
     const [loading, setLoading] = useState(true);
-    const [formCompleted, setFormCompleted] = useState(false);
+
     const [invalidCodeMessage, setInvalidCodeMessage] = useState<string | undefined>(undefined);
     const [emailInvalidMessage, setEmailInalidMessage] = useState<string | undefined>(undefined);
     const [tempEmail, setTempEmail] = useState("");
@@ -61,6 +73,8 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
     const theUseEffectFunction = () => {
         if (attendanceState.guests.length > 0) {
             setLoading(false);
+            setTempEmail(attendanceState.guests[0].email as string);
+            setTempRemarks(attendanceState.guests[0].remarks as string);
         } else {
             fetch(getHost() + "/api/invitation", {
                 method: "GET", headers: {invitation: localStorage.getItem('invitation') as string}
@@ -93,7 +107,7 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
         }
     }
 
-    useEffect(theUseEffectFunction, []);
+    useEffect(theUseEffectFunction, [setFormCompleted]);
 
     const validateEmail = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const changedEmail = event.target.value;
@@ -148,38 +162,26 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
         return <div className={classes.root}><CircularProgress className={classes.progress}/></div>
     } else if (formCompleted) {
         return (
-            // <BrowserRouter>
-            //     <Route exact path="/" component={} />
-            // </BrowserRouter>
-            <div>Hoi</div>
-            // <Grid container justifyContent="center" spacing={2} className={classes.root}>
-            //     <WeddingHeader/>
-            //     <WeddingInfo/>
-            //     <Grid item>
-            //         <Card className={classes.card}>
-            //             <CardContent>
-            //                 <Typography variant="body2" fontSize="medium" color="#001E3C" fontFamily="Times New Roman"
-            //                             fontWeight="bold">{t("YOUR_ATTENDANCE")}</Typography>
-            //                 <Divider/><br/>
-            //                 <Typography variant="body2" fontSize="medium" fontFamily="Times New Roman">{t("REGISTERED")}</Typography>
-            //                 <Button
-            //                     sx={{
-            //                         textTransform: "none",
-            //                         marginTop: "0.5em",
-            //                         marginBottom: "1.5em",
-            //                         width: "80%",
-            //                         marginRight: "20%"
-            //                     }}
-            //                     variant="contained" onClick={undoRegistration}>Aanmelding opnieuw doen</Button>
-            //
-            //                 <Typography variant="body2" fontSize="medium"
-            //                             fontWeight="bold">Covid</Typography>
-            //                 <Divider/><br/>
-            //             </CardContent>
-            //         </Card>
-            //     </Grid>
-            // </Grid>
-        );
+            <Grid container justifyContent="center" spacing={2} className={classes.root}>
+
+                <BrowserRouter>
+                    <WeddingHeader/>
+                    <WeddingMenu/>
+                    <Route exact path="/"  render={() => (
+                        <Registration undoRegistration={undoRegistration}/>
+                    )} />
+                    <Route path="/covid" component={Covid} />
+                    <Route path="/program" component={ExtendedWeddingInfo} />
+                    <Route path="/about" component={About} />
+                    <Route path="/location" component={Location} />
+                    <Route path="/hotel" component={Overnachten} />
+                    <Route path="/dresscode" component={DressCode} />
+                    <Route path="/gifts" component={Gifts} />
+                    <Route path="/photos" component={Pictures} />
+                </BrowserRouter>
+            </Grid>
+    )
+        ;
     } else {
         if (attendanceState.guests.length > 0) {
             return (
@@ -189,10 +191,11 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                     <Grid item>
                         <Card className={classes.card}>
                             <CardContent>
-                                <Typography variant="body2" fontSize="medium"  color="#001E3C" fontFamily="Times New Roman"
+                                <Typography variant="body2" fontSize="large" color="#001E3C"
+                                            fontFamily="Times New Roman"
                                             fontWeight="bold">{t("YOUR_ATTENDANCE")}</Typography>
                                 <Divider/><br/>
-                                <Typography variant="body2"  fontFamily="Times New Roman"
+                                <Typography variant="body2" fontFamily="Times New Roman"
                                             fontSize="medium">{attendanceState.guests.length === 1 ? t("ATTEND_MESSAGE") : t("ATTEND_PLURAL_MESSAGE")}</Typography>
                                 <List sx={{marginBottom: "0.4em"}}>
                                     {attendanceState.guests.length > 0 && attendanceState.guests.map((guest, index) => {
@@ -204,7 +207,7 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                 </List>
                                 {attendanceState.guests[0].allowedToSleepOver &&
                                     <>
-                                        <Typography variant="body2"  fontFamily="Times New Roman"
+                                        <Typography variant="body2" fontFamily="Times New Roman"
                                                     fontSize="medium">{attendanceState.guests.length === 1 ? t("SLEEP_OVER") : t("SLEEP_OVER_PLURAL")}</Typography>
                                         <List sx={{marginBottom: "0.4em"}}>
                                             {attendanceState.guests.map((guest, index) => {
@@ -221,7 +224,8 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                         </List>
                                     </>
                                 }
-                                <Typography variant="body2" fontSize="medium"  fontFamily="Times New Roman">{t("EMAIL_DESCRIPTION")}</Typography>
+                                <Typography variant="body2" fontSize="medium"
+                                            fontFamily="Times New Roman">{t("EMAIL_DESCRIPTION")}</Typography>
                                 <TextField
                                     className={classes.inputField}
                                     error={emailInvalidMessage !== undefined}
@@ -236,14 +240,16 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                     sx={{marginTop: "0.8em", marginBottom: "1.5em"}}
                                 />
                                 <br/>
-                                <Typography variant="body2" fontFamily="Times New Roman" fontSize="medium">{t("DIET_DESCRIPTION")}</Typography>
+                                <Typography variant="body2" fontFamily="Times New Roman"
+                                            fontSize="medium">{t("DIET_DESCRIPTION")}</Typography>
                                 {attendanceState.guests.map((guest: Guest, index) => {
                                     return <AllergiesOfGuest key={`allergiesOf${guest.name}`} guest={guest}
                                                              index={index}/>
                                 })}
                                 <br/>
                                 <br/>
-                                <Typography variant="body2" fontSize="medium" fontFamily="Times New Roman">{t("REMARKS")}</Typography>
+                                <Typography variant="body2" fontSize="medium"
+                                            fontFamily="Times New Roman">{t("REMARKS")}</Typography>
                                 <TextField
                                     className={classes.inputField}
                                     id="outlined-static"
@@ -255,7 +261,13 @@ const AttendanceView: React.FC<AttendanceProps> = ({code}) => {
                                     onChange={saveRemarks}
                                 />
                                 <Button
-                                    sx={{textTransform: "none", marginTop: "0.5em", width: "50%", marginRight: "50%", fontFamily: "Times New Roman"}}
+                                    sx={{
+                                        textTransform: "none",
+                                        marginTop: "0.5em",
+                                        width: "50%",
+                                        marginRight: "50%",
+                                        fontFamily: "Times New Roman"
+                                    }}
                                     variant="contained" onClick={handleRegistration}>{t("REGISTER_BUTTON")}</Button>
                             </CardContent>
                         </Card>

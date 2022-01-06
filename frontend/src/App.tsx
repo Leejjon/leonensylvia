@@ -6,6 +6,7 @@ import AttendanceView from "./views/AttendanceView";
 
 const App: React.FC = () => {
     const [code, setCode] = useState<string | undefined>(undefined);
+    const [formCompleted, setFormCompleted] = useState(false);
 
     useEffect(() => {
         let codeFromLocalStorage = localStorage.getItem("invitation");
@@ -14,14 +15,15 @@ const App: React.FC = () => {
         }
     }, []);
 
-    const setCodeInLocalStorage = (verifiedCodeFromApi: string) => {
+    const setCodeInLocalStorage = (verifiedCodeFromApi: string, formAlreadyCompleted: boolean) => {
         localStorage.setItem("invitation", verifiedCodeFromApi);
         setCode(verifiedCodeFromApi);
+        setFormCompleted(formAlreadyCompleted);
     }
 
     if (code) {
         return (
-            <AttendanceView code={code}/>
+            <AttendanceView code={code} formCompleted={formCompleted} setFormCompleted={setFormCompleted}/>
         );
     } else {
         return (

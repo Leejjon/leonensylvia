@@ -3,7 +3,7 @@ import {Button, Card, CardContent, TextField, Typography} from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import React, {ChangeEvent, useRef, useState} from "react";
 import {getHost} from "../service/Network";
-import attendanceState from "../state/AttendanceState";
+import attendanceState, {Guest} from "../state/AttendanceState";
 import {useTranslation} from "react-i18next";
 import WeddingHeader from "../components/WeddingHeader";
 
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
 });
 
 export interface LoginProps {
-    storeInvitationCode: (code: string) => void
+    storeInvitationCode: (code: string, formAlreadyCompleted: boolean) => void
 }
 
 const LoginView: React.FC<LoginProps> = ({storeInvitationCode}) => {
@@ -56,8 +56,9 @@ const LoginView: React.FC<LoginProps> = ({storeInvitationCode}) => {
                 if (response.status === 200) {
                     let invitationData = await response.json();
                     if (invitationData.length > 0) {
-                        attendanceState.setGuests(invitationData);
-                        storeInvitationCode(code);
+                        const guests: Array<Guest> = invitationData;
+                        attendanceState.setGuests(guests);
+                        storeInvitationCode(code, guests[0].formCompleted);
                         setInvalidMessage(undefined);
                         return;
                     }
