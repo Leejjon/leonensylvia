@@ -166,18 +166,7 @@ const AttendanceView: React.FC<AttendanceProps> = ({code, formCompleted, setForm
 
                 <BrowserRouter>
                     <WeddingHeader/>
-                    <WeddingMenu/>
-                    <Route exact path="/"  render={() => (
-                        <Registration undoRegistration={undoRegistration}/>
-                    )} />
-                    <Route path="/covid" component={Covid} />
-                    <Route path="/program" component={ExtendedWeddingInfo} />
-                    <Route path="/about" component={About} />
-                    <Route path="/location" component={Location} />
-                    <Route path="/hotel" component={Overnachten} />
-                    <Route path="/dresscode" component={DressCode} />
-                    <Route path="/gifts" component={Gifts} />
-                    <Route path="/photos" component={Pictures} />
+                    <Route path="/" component={Pictures} />
                 </BrowserRouter>
             </Grid>
     )

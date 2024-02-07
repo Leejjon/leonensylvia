@@ -26,14 +26,6 @@ const WeddingMenu: React.FC = () => {
     const location = useLocation();
     const {t} = useTranslation();
     const links: Array<{ url: string, text: string }> = [
-        {url: "/", text: t("YOUR_ATTENDANCE")},
-        {url: "/covid", text: t('COVID')},
-        {url: "/program", text: t("PROGRAM")},
-        {url: "/about", text: t("ABOUT")},
-        {url: "/location", text: t("LOCATION")},
-        {url: "/hotel", text: "Hotel"},
-        {url: "/dresscode", text: t("DRESS_CODE_TITLE")},
-        {url: "/gifts", text: t("GIFT_TITLE")},
         {url: "/photos", text: t("PICTURES_TITLE")}
     ];
 
